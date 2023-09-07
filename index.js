@@ -9,10 +9,10 @@ mongoose.connect(
         useNewUrlParser: true,
         useUnifiedTopology: true
     }
-);
+).then(() => console.log('Connected to MongoDB'));
 
 const routes_users = require("./routes/users.routes");
 
 app.use(express.json());
 app.use('/users', routes_users);
-app.listen(3000);
+app.listen(process.env.PORT || 3000);

@@ -3,31 +3,30 @@ const { v4: uuidv4 } = require('uuid');
 const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
+const User = require("../models/user.model");
 
-const users = []; // Placeholder for DB
-
-router.get('/', (req, res) => {
-    res.json(users);
+router.get('/', async (req, res) => {
+    // res.json(users);
+    const users = await User.find({});
+    console.log('Users: ', users);
 });
 
 router.post('/register', async (req, res) => {
-    try {
-        const hashedPass = await bcrypt.hash(req.body.password, 10);
-        const user = 
-        {
-            _id: uuidv4(),
-            name: req.body.name, 
-            password: hashedPass
-        }
-        if (users.find(user => user.name === req.body.name)) {
-            res.send('Username already exists');
-        } else {
-            users.push(user);
-            res.status(201).send();
-        }
-    } catch {
-        res.status(500).send("Error registering user");
-    }
+    const hashedPass = await bcrypt.hash(req.body.password, 10);
+    const newUser = new User({
+        _id: uuidv4(),
+        _dateCreated: Date(),
+        name: req.body.name,
+        email: 'tyler@garnercode.io',
+        password: hashedPass
+    });
+    newUser
+    .save()
+    .then(
+        () => console.log('User saved'),
+        (err) => console.err(err)
+    );
+    res.status(201).send();
 });
 
 router.post('/login', async (req, res) => {
