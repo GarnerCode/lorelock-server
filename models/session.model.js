@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
 const sessionSchema = new mongoose.Schema({
-    id: String,
+    _id: String,
+    _access: Array,
     dateCreated: Date,
     title: String,
     gameDate: Date,
