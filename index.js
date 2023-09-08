@@ -11,8 +11,8 @@ mongoose.connect(
     }
 ).then(() => console.log('Connected to MongoDB'));
 
-const routes_users = require("./routes/users.routes");
+const api_users = require("./api/users");
 
 app.use(express.json());
-app.use('/users', routes_users);
+app.use('/users', api_users);
 app.listen(process.env.PORT || 3000);
