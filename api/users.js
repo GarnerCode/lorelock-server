@@ -9,6 +9,8 @@ router.get('/', async (req, res) => {
     // res.json(users);
     const users = await User.find({});
     console.log('Users: ', users);
+    res.send(users);
+    res.status(200).send();
 });
 
 router.post('/register', async (req, res) => {
