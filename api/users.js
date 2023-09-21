@@ -14,19 +14,15 @@ router.get('/', async (req, res) => {
 router.post('/register', async (req, res) => {
     const users = await User.find({});
     const existingEmail = users.find((user) => user.email == req.body.email);
-    const existingName = users.find((user) => user.name == req.body.name);
     if (existingEmail) {
         console.log('An account with this email already exists.');
-        return;
-    } else if (existingName) {
-        console.log('This username is taken.');
         return;
     } else {
         const hashedPass = await bcrypt.hash(req.body.password, 10);
         const newUser = new User({
             _id: uuidv4(),
             _dateCreated: Date(),
-            name: req.body.name,
+            name: 'NewUser#' + _id,
             email: req.body.email,
             password: hashedPass
         });
@@ -42,28 +38,19 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-    console.log('Received request, attempting login...');
-    const users = await User.find({});
-    let user = null;
-    if (users) {
-        user = users.find((user) => user.email == req.body.email);
-    }
-    if (!user) {
-        res.status(400).send('Cannot find user');
-        return;
-    } else {
-        try {
-            if(await bcrypt.compare(req.body.password, user.password)) {
-                res.send('Logging in...');
-                return;
-            } else {
-                res.send('Incorrect email or password');
-                return;
-            }
-        } catch {
-            res.status(500).send();
-            return;
+    try {
+        const { username, password } = req.body;
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.json({ msg: "Incorrect Username or Password", status: false });
         }
+        const passwordValid = await bcrypt.compare(password, user.password)
+        if (!passwordValid) {
+            return res.json({ msg: "Incorrect Username or Password", status: false });
+        }
+        return res.json({ status: true, user });
+    } catch(err) {
+        return res.status(500).send(err);
     }
 });
 
