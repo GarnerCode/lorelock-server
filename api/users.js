@@ -8,22 +8,20 @@ const User = require("../models/user.model");
 router.get('/', async (req, res) => {
     const users = await User.find({});
     res.send(users);
-    res.status(200).send();
 });
 
 router.post('/register', async (req, res) => {
     const users = await User.find({});
-    const existingEmail = users.find((user) => user.email == req.body.email);
-    if (existingEmail) {
-        console.log('An account with this email already exists.');
+    const existingName = users.find((user) => user.name.toLocaleLowerCase() == req.body.name.toLocaleLowerCase());
+    if (existingName) {
+        console.log('Sorry, this username is taken.');
         return;
     } else {
         const hashedPass = await bcrypt.hash(req.body.password, 10);
         const newUser = new User({
             _id: uuidv4(),
             _dateCreated: Date(),
-            name: 'NewUser#' + _id,
-            email: req.body.email,
+            name: req.body.name,
             password: hashedPass
         });
         newUser
@@ -44,7 +42,7 @@ router.post('/login', async (req, res) => {
         if (!user) {
             return res.json({ msg: "Incorrect Username or Password", status: false });
         }
-        const passwordValid = await bcrypt.compare(password, user.password)
+        const passwordValid = await bcrypt.compare(password, user.password);
         if (!passwordValid) {
             return res.json({ msg: "Incorrect Username or Password", status: false });
         }
